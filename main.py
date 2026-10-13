@@ -11,7 +11,14 @@ from langchain_openai import ChatOpenAI
 from tavily import TavilyClient
 from langchain_tavily import TavilySearch
 
+class Source(BaseModel):
+    """Schema for a source used by the agent"""
+    url:str = Field(description="The URL of the source")
 
+class AgentResponse(BaseModel):
+    """Schema for the response from the agent with answer and sources"""
+    answer:str = Field(description="The answer provided by the agent")
+    sources: List[Source] = Field(default_factory=list, description="The sources used by the agent")
 
 # tavily = TavilyClient()
 
@@ -29,7 +36,7 @@ from langchain_tavily import TavilySearch
 
 llm = ChatOpenAI(model="gpt-5")
 tools = [TavilySearch()]
-agent = create_agent(model=llm, tools=tools)
+agent = create_agent(model=llm, tools=tools, response_format=AgentResponse)
 
 def main():
     result = agent.invoke({"messages": [HumanMessage(content="search for 3 job postings for an ai engineer using langchain in the bay area on linkedin and list their details")]})
